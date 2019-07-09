@@ -171,15 +171,12 @@ namespace FlexLabs.Inky
         {
             await Setup();
 
-            //packed_height = list(struct.pack('<H', self.rows))
-
-            //if isinstance(packed_height[0], str) :
-            //    packed_height = map(ord, packed_height)
+            var packedHeight = new byte[] { (byte)(_rows % 256), (byte)(_rows / 256) };
 
             SendCommand(0x74, 0x54);  // Set Analog Block Control
             SendCommand(0x7e, 0x3b);  // Set Digital Block Control
 
-            SendCommand(0x01, packed_height + [0x00]); // Gate setting
+            SendCommand(0x01, new byte[] { packedHeight[0], packedHeight[1], 0 }); // Gate setting              // packed_height + [0x00]
 
             SendCommand(0x03, 0x17);  // Gate Driving Voltage
             SendCommand(0x04, new byte[] { 0x41, 0xAC, 0x32 });  // Source Driving Voltage
@@ -207,8 +204,8 @@ namespace FlexLabs.Inky
 
             SendCommand(0x32, Luts[_lut]);  // Set LUTs
 
-            SendCommand(0x44, new byte[] { 0x00, (byte)(_columns / 8 - 1) });  // Set RAM X Start/End        // (self.cols // 8) - 1
-            SendCommand(0x45, [0x00, 0x00] + packed_height);  // Set RAM Y Start/End
+            SendCommand(0x44, new byte[] { 0x00, (byte)(_columns / 8 - 1) });  // Set RAM X Start/End           // (self.cols // 8) - 1
+            SendCommand(0x45, new byte[] { 0, 0, packedHeight[0], packedHeight[1] });  // Set RAM Y Start/End   // [0x00, 0x00] + packed_height
 
             void writeBuffer(byte location, byte[] data)
             {
@@ -229,6 +226,101 @@ namespace FlexLabs.Inky
                 await BusyWait();
                 SendCommand(0x10, 0x01);  // Enter Deep Sleep
             }
+        }
+
+        public void SetPixel(int x, int y, InkyPixelColour colour)
+        {
+            _buffer[x, y] = colour;
+        }
+
+        T[,] Clone<T>(T[,] input)
+        {
+            var height = input.GetLength(0);
+            var width = input.GetLength(1);
+            var result = new T[height, width];
+
+            for (int i = 0; i < height; i++)
+                for (int j = 0; j < width; j++)
+                    result[i, j] = input[i, j];
+
+            return result;
+        }
+
+        T[,] FlipLR<T>(T[,] input)
+        {
+            var height = input.GetLength(0);
+            var width = input.GetLength(1);
+            var result = new T[height, width];
+
+            for (int i = 0; i < height; i++)
+                for (int j = 0; j < width; j++)
+                    result[i, width - j - 1] = input[i, j];
+
+            return result;
+        }
+
+        T[,] FlipUD<T>(T[,] input)
+        {
+            var height = input.GetLength(0);
+            var width = input.GetLength(1);
+            var result = new T[height, width];
+
+            for (int i = 0; i < height; i++)
+                for (int j = 0; j < width; j++)
+                    result[height - i - 1, j] = input[i, j];
+
+            return result;
+        }
+
+        T[,] Flip90<T>(T[,] input)
+        {
+            var height = input.GetLength(0);
+            var width = input.GetLength(1);
+            var result = new T[width, height];
+
+            for (int i = 0; i < height; i++)
+                for (int j = 0; j < width; j++)
+                    result[j, i] = input[i, j];
+
+            return result;
+        }
+
+        byte[] PackBits(InkyPixelColour[,] input, Func<InkyPixelColour, bool> match)
+        {
+            byte bit = 0, current = 0;
+            var result = new List<byte>();
+            for (int i = 0; i < input.GetLength(0); i++)
+                for (int j = 0; j < input.GetLength(1); j++)
+                {
+                    if (match(input[i, j]))
+                        current += (byte)Math.Pow(2, 7 - bit);
+                    if (++bit > 7)
+                    {
+                        result.Add(current);
+                        bit = current = 0;
+                    }
+                }
+            if (bit > 0)
+                result.Add(current);
+            return result.ToArray();
+        }
+
+        public Task Show(bool busyWait = true)
+        {
+            var region = Clone(_buffer);
+
+            //if (vFlip)
+            //    region = FlipLR(region);
+            //if (hFlip)
+            //    region = FlipUD(region);
+
+            if (_rotation % 180 != 0)
+                region = Flip90(region);
+
+            var bufferA = PackBits(region, b => b != InkyPixelColour.Black);
+            var bufferB = PackBits(region, b => b == InkyPixelColour.Red);
+
+            return Update(bufferA, bufferB, busyWait);
         }
     }
 }
