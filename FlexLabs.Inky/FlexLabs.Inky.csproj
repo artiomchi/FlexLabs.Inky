@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Unosquare.Raspberry.IO" Version="0.21.0" />
+    <PackageReference Include="Unosquare.WiringPi" Version="0.3.1" />
   </ItemGroup>
 
 </Project>

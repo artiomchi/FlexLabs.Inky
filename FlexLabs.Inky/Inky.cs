@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unosquare.RaspberryIO;
 using Unosquare.RaspberryIO.Abstractions;
+using Unosquare.WiringPi;
 
 namespace FlexLabs.Inky
 {
@@ -15,15 +16,11 @@ namespace FlexLabs.Inky
         private const int Pin_Sclk = 11;
         private const int Pin_cs0 = 0;
 
-        private const int SPI_Chunk_Size = 4096;
-        private const string SPI_Command = "GPIO.LOW";
-        private const string SPI_Data = "GPIO.HIGH";
-
-        private static readonly Dictionary<(int, int), (int, int, int)> Resolutions =
-            new Dictionary<(int, int), (int, int, int)>
+        private static readonly Dictionary<(int, int), (int, int, int, bool)> Resolutions =
+            new Dictionary<(int, int), (int, int, int, bool)>
             {
-                [(400, 300)] = (400, 300, 0),
-                [(212, 104)] = (104, 212, -90),
+                [(400, 300)] = (400, 300, 0, false),
+                [(212, 104)] = (104, 212, -90, true),
             };
         private static readonly Dictionary<InkyDisplayColour, byte[]> Luts =
             new Dictionary<InkyDisplayColour, byte[]>
@@ -90,7 +87,7 @@ namespace FlexLabs.Inky
                 },
             };
 
-        private bool _setup = false;
+        private bool _setup = false, _swapxy;
         private (int width, int height) _resolution;
         private int _columns, _rows, _rotation;
         private InkyDisplayColour _displayColour, _lut;
@@ -101,7 +98,7 @@ namespace FlexLabs.Inky
         public Inky((int width, int height) resolution, InkyDisplayColour colour)
         {
             _resolution = resolution;
-            (_columns, _rows, _rotation) = Resolutions[resolution];
+            (_columns, _rows, _rotation, _swapxy) = Resolutions[resolution];
             _displayColour = _lut = colour;
 
             //self.eeprom = eeprom.read_eeprom()
@@ -118,16 +115,16 @@ namespace FlexLabs.Inky
         {
             if (!_setup)
             {
+                Pi.Init<BootstrapWiringPi>();
+
                 Pi.Gpio[Pin_DC].PinMode = GpioPinDriveMode.Output;
                 Pi.Gpio[Pin_DC].Value = false;
-                Pi.Gpio[Pin_DC].InputPullMode = GpioPinResistorPullMode.Off;
 
                 Pi.Gpio[Pin_Reset].PinMode = GpioPinDriveMode.Output;
                 Pi.Gpio[Pin_Reset].Value = true;
-                Pi.Gpio[Pin_Reset].InputPullMode = GpioPinResistorPullMode.Off;
 
-                Pi.Gpio[Pin_Reset].PinMode = GpioPinDriveMode.Input;
-                Pi.Gpio[Pin_Reset].InputPullMode = GpioPinResistorPullMode.Off;
+                Pi.Gpio[Pin_Busy].PinMode = GpioPinDriveMode.Input;
+                Pi.Gpio[Pin_Busy].InputPullMode = GpioPinResistorPullMode.Off;
 
                 Pi.Spi.Channel0Frequency = 488000;
 
@@ -228,9 +225,19 @@ namespace FlexLabs.Inky
             }
         }
 
+        public void Clear()
+        {
+            for (int i = 0; i < _buffer.GetLength(0); i++)
+                for (int j = 0; j < _buffer.GetLength(1); j++)
+                    _buffer[i, j] = InkyPixelColour.White;
+        }
+
         public void SetPixel(int x, int y, InkyPixelColour colour)
         {
-            _buffer[x, y] = colour;
+            if (_swapxy)
+                _buffer[y, x] = colour;
+            else
+                _buffer[x, y] = colour;
         }
 
         T[,] Clone<T>(T[,] input)
@@ -313,6 +320,7 @@ namespace FlexLabs.Inky
             //    region = FlipLR(region);
             //if (hFlip)
             //    region = FlipUD(region);
+            region = FlipLR(region);
 
             if (_rotation % 180 != 0)
                 region = Flip90(region);
