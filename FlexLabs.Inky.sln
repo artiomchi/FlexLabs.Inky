@@ -1,9 +1,18 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexLabs.Inky", "FlexLabs.Inky\FlexLabs.Inky.csproj", "{7C77BE5F-0074-44F0-82EC-C299DB72C9F1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{017B6505-CB58-4CD0-9D9F-239BAC94E608}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B651F159-0B00-4F6B-B35A-E2E0A9AAD531}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexLabs.Inky", "src\FlexLabs.Inky\FlexLabs.Inky.csproj", "{7C77BE5F-0074-44F0-82EC-C299DB72C9F1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexLabs.Inky.Text", "src\FlexLabs.Inky.Text\FlexLabs.Inky.Text.csproj", "{B697F7AB-9661-4DDF-A586-F1BC66DB2022}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +24,17 @@ Global
 		{7C77BE5F-0074-44F0-82EC-C299DB72C9F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C77BE5F-0074-44F0-82EC-C299DB72C9F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C77BE5F-0074-44F0-82EC-C299DB72C9F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B697F7AB-9661-4DDF-A586-F1BC66DB2022}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B697F7AB-9661-4DDF-A586-F1BC66DB2022}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B697F7AB-9661-4DDF-A586-F1BC66DB2022}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B697F7AB-9661-4DDF-A586-F1BC66DB2022}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7C77BE5F-0074-44F0-82EC-C299DB72C9F1} = {B651F159-0B00-4F6B-B35A-E2E0A9AAD531}
+		{B697F7AB-9661-4DDF-A586-F1BC66DB2022} = {B651F159-0B00-4F6B-B35A-E2E0A9AAD531}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {34282D25-89ED-4D95-B424-1412561E51EB}

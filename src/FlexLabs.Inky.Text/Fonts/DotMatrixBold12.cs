@@ -2,8 +2,14 @@
 
 namespace FlexLabs.Inky.Text.Fonts
 {
+    /// <summary>
+    /// Simple Dot Matrix Bold font
+    /// </summary>
     public static partial class DotMatrixBold
     {
+        /// <summary>
+        /// Simple Dot Bold matrix font, size 12
+        /// </summary>
         public static readonly Dictionary<char, bool[,]> Size12 = new Dictionary<char, bool[,]>
         {
             [':'] = new bool[,]

@@ -15,8 +15,11 @@ namespace FlexLabs.Inky
         /// <param name="y">The y pixel position</param>
         /// <param name="colour">The colour to set the pixel to</param>
         /// <returns>True if the pixel coordinates were within the bounds of the screen</returns>
-        public static bool TrySetPixel(this IInky inky, int x, int y, InkyPixelColour colour)
+        public static bool TrySetPixel(this IInkyDriver inky, int x, int y, InkyPixelColour colour)
         {
+            if (inky is null)
+                throw new ArgumentNullException(nameof(inky));
+
             if (x < 0 || y < 0 || x >= inky.Width || y >= inky.Height)
                 return false;
 
@@ -34,8 +37,11 @@ namespace FlexLabs.Inky
         /// <param name="y2">The y pixel position of the opposite corner</param>
         /// <param name="borderColour">The border colour of the rectangle</param>
         /// <param name="fillColour">The fill colour of the rectangle (optional)</param>
-        public static void DrawRectangle(this IInky inky, int x1, int y1, int x2, int y2, InkyPixelColour borderColour, InkyPixelColour? fillColour = null)
+        public static void DrawRectangle(this IInkyDriver inky, int x1, int y1, int x2, int y2, InkyPixelColour borderColour, InkyPixelColour? fillColour = null)
         {
+            if (inky is null)
+                throw new ArgumentNullException(nameof(inky));
+
             for (var i = Math.Min(x1, x2); i <= Math.Max(x1, x2); i++)
             {
                 inky.SetPixel(i, y1, borderColour);

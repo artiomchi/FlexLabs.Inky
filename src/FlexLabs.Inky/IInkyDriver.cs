@@ -5,7 +5,7 @@ namespace FlexLabs.Inky
     /// <summary>
     /// Inky e-Ink Display Driver
     /// </summary>
-    public interface IInky
+    public interface IInkyDriver
     {
         /// <summary>
         /// Sets the border colour when rendering image (defaults to black)

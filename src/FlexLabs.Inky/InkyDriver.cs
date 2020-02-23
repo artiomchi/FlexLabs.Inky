@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Unosquare.RaspberryIO;
 using Unosquare.RaspberryIO.Abstractions;
@@ -8,7 +9,8 @@ using Unosquare.WiringPi;
 namespace FlexLabs.Inky
 {
     /// <inheritdoc />
-    public class Inky : IInky
+    [SuppressMessage("Performance", "CA1814:Prefer jagged arrays over multidimensional", Justification = "The arrays used will have the same width")]
+    public class InkyDriver : IInkyDriver
     {
         private const int Pin_Reset = 27;
         private const int Pin_Busy = 17;
@@ -53,7 +55,7 @@ namespace FlexLabs.Inky
                     0x00, 0x00, 0x00, 0x00, 0x00,
                     0x00, 0x00, 0x00, 0x00, 0x00,
                 },
-                [InkyDisplayColour.Red_Ht] = new byte[]
+                [InkyDisplayColour.RedHt] = new byte[]
                 {
                     0b01001000, 0b10100000, 0b00010000, 0b00010000, 0b00010011, 0b00010000, 0b00010000,
                     0b01001000, 0b10100000, 0b10000000, 0b00000000, 0b00000011, 0b10000000, 0b10000000,
@@ -98,7 +100,7 @@ namespace FlexLabs.Inky
         /// <param name="width">Display width in pixels</param>
         /// <param name="height">Display height in pixels</param>
         /// <param name="colour">Display colour</param>
-        public Inky(int width, int height, InkyDisplayColour colour)
+        public InkyDriver(int width, int height, InkyDisplayColour colour)
         {
             _resolution = (width, height);
             (_columns, _rows, _rotation) = Resolutions[_resolution];
@@ -129,7 +131,7 @@ namespace FlexLabs.Inky
 
         #region Internal display rendering functions
 
-        private void SendCommand(byte command, params byte[] data)
+        private static void SendCommand(byte command, params byte[] data)
         {
             Pi.Gpio[Pin_DC].Value = false;
             Pi.Spi.Channel0.Write(new[] { command });
@@ -140,7 +142,7 @@ namespace FlexLabs.Inky
             }
         }
 
-        private void SendData(params byte[] data)
+        private static void SendData(params byte[] data)
         {
             Pi.Gpio[Pin_DC].Value = true;
             Pi.Spi.Channel0.Write(data);
@@ -148,7 +150,7 @@ namespace FlexLabs.Inky
 
         private async Task Update(byte[] blackPixels, byte[] colourPixels, bool busyWait = true)
         {
-            await Init();
+            await Init().ConfigureAwait(false);
 
             var packedHeight = new byte[] { (byte)(_rows % 256), (byte)(_rows / 256) };
 
@@ -198,19 +200,19 @@ namespace FlexLabs.Inky
 
             SendCommand(0x22, 0xC7);  // Display Update Sequence
             SendCommand(0x20);  // Trigger Display Update
-            await Task.Delay(TimeSpan.FromSeconds(.05));
+            await Task.Delay(TimeSpan.FromSeconds(.05)).ConfigureAwait(false);
 
             if (busyWait)
             {
-                await BusyWait();
+                await BusyWait().ConfigureAwait(false);
                 SendCommand(0x10, 0x01);  // Enter Deep Sleep
             }
         }
 
-        private async Task BusyWait()
+        private static async Task BusyWait()
         {
             while (Pi.Gpio[Pin_Busy].Value)
-                await Task.Delay(TimeSpan.FromSeconds(.01));
+                await Task.Delay(TimeSpan.FromSeconds(.01)).ConfigureAwait(false);
         }
 
         #endregion
@@ -337,12 +339,12 @@ namespace FlexLabs.Inky
             }
 
             Pi.Gpio[Pin_Reset].Value = false;
-            await Task.Delay(TimeSpan.FromSeconds(.1));
+            await Task.Delay(TimeSpan.FromSeconds(.1)).ConfigureAwait(false);
             Pi.Gpio[Pin_Reset].Value = true;
-            await Task.Delay(TimeSpan.FromSeconds(.1));
+            await Task.Delay(TimeSpan.FromSeconds(.1)).ConfigureAwait(false);
 
             SendCommand(0x12); // Soft Reset
-            await BusyWait();
+            await BusyWait().ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -360,7 +362,7 @@ namespace FlexLabs.Inky
         }
 
         /// <inheritdoc />
-        public Task RenderBuffer()
+        public async Task RenderBuffer()
         {
             var region = Clone(_buffer);
 
@@ -374,7 +376,7 @@ namespace FlexLabs.Inky
             var bufferA = PackBits(region, b => b != InkyPixelColour.Black);
             var bufferB = PackBits(region, b => b == InkyPixelColour.Red);
 
-            return Update(bufferA, bufferB, true);
+            await Update(bufferA, bufferB, true).ConfigureAwait(false);
         }
     }
 }

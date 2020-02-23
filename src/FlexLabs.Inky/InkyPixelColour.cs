@@ -1,15 +1,15 @@
 ﻿namespace FlexLabs.Inky
 {
     /// <summary>
-    /// Defines the display colour mode
+    /// Defines the pixel colour
     /// </summary>
-    public enum InkyDisplayColour : byte
+    public enum InkyPixelColour
     {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        White = 0,
         Black = 1,
         Red = 2,
-        Red_Ht = 3,
-        Yellow = 4,
+        Yellow = 2,
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }

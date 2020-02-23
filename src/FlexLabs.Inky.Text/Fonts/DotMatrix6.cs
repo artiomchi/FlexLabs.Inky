@@ -4,6 +4,9 @@ namespace FlexLabs.Inky.Text.Fonts
 {
     public static partial class DotMatrix
     {
+        /// <summary>
+        /// Simple Dot matrix font, size 6
+        /// </summary>
         public static readonly Dictionary<char, bool[,]> Size6 = new Dictionary<char, bool[,]>
         {
             [':'] = new bool[,]

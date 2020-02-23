@@ -2,8 +2,14 @@
 
 namespace FlexLabs.Inky.Text.Fonts
 {
+    /// <summary>
+    /// Rough approximation of the Arial font
+    /// </summary>
     public static partial class Arial
     {
+        /// <summary>
+        /// Rough approximation of the Arial Size 8 font
+        /// </summary>
         public static readonly Dictionary<char, bool[,]> Size8 = new Dictionary<char, bool[,]>
         {
             [':'] = new bool[,]
