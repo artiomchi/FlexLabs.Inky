@@ -7,17 +7,15 @@ using Unosquare.WiringPi;
 
 namespace FlexLabs.Inky
 {
-    /// <summary>
-    /// Inky e-Ink Display Driver
-    /// </summary>
-    public class Inky
+    /// <inheritdoc />
+    public class Inky : IInky
     {
         private const int Pin_Reset = 27;
         private const int Pin_Busy = 17;
         private const int Pin_DC = 22;
 
-        private static readonly Dictionary<(short, short), (short, short, short)> Resolutions =
-            new Dictionary<(short, short), (short, short, short)>
+        private static readonly Dictionary<(int, int), (int, int, int)> Resolutions =
+            new Dictionary<(int, int), (int, int, int)>
             {
                 [(400, 300)] = (400, 300, 0),
                 [(212, 104)] = (104, 212, -90),
@@ -87,8 +85,8 @@ namespace FlexLabs.Inky
                 },
             };
 
-        private readonly (short width, short height) _resolution;
-        private readonly short _columns, _rows, _rotation;
+        private readonly (int width, int height) _resolution;
+        private readonly int _columns, _rows, _rotation;
         private readonly InkyDisplayColour _displayColour, _lut;
         private readonly InkyPixelColour[,] _buffer;
 
@@ -100,7 +98,7 @@ namespace FlexLabs.Inky
         /// <param name="width">Display width in pixels</param>
         /// <param name="height">Display height in pixels</param>
         /// <param name="colour">Display colour</param>
-        public Inky(short width, short height, InkyDisplayColour colour)
+        public Inky(int width, int height, InkyDisplayColour colour)
         {
             _resolution = (width, height);
             (_columns, _rows, _rotation) = Resolutions[_resolution];
@@ -116,35 +114,18 @@ namespace FlexLabs.Inky
             _buffer = new InkyPixelColour[_resolution.height, _resolution.width];
         }
 
-        /// <summary>
-        /// Sets whether the image should be flipped vertically during render
-        /// </summary>
-        public bool FlipVertically { get; set; }
-
-        /// <summary>
-        /// Sets whether the image should be flipped horizontally during render
-        /// </summary>
-        public bool FlipHorizontally { get; set; }
-
-        /// <summary>
-        /// Sets the border colour when rendering image (defaults to black)
-        /// </summary>
+        /// <inheritdoc />
         public InkyPixelColour BorderColour { get; set; } = InkyPixelColour.Black;
-
-        /// <summary>
-        /// Returns the display width
-        /// </summary>
-        public short Width => _resolution.width;
-
-        /// <summary>
-        /// Returns the display height
-        /// </summary>
-        public short Height => _resolution.height;
-
-        /// <summary>
-        /// Returns the display colour
-        /// </summary>
+        /// <inheritdoc />
         public InkyDisplayColour DisplayColour => _displayColour;
+        /// <inheritdoc />
+        public bool FlipHorizontally { get; set; }
+        /// <inheritdoc />
+        public bool FlipVertically { get; set; }
+        /// <inheritdoc />
+        public int Height => _resolution.height;
+        /// <inheritdoc />
+        public int Width => _resolution.width;
 
         #region Internal display rendering functions
 
@@ -167,7 +148,7 @@ namespace FlexLabs.Inky
 
         private async Task Update(byte[] blackPixels, byte[] colourPixels, bool busyWait = true)
         {
-            await Setup();
+            await Init();
 
             var packedHeight = new byte[] { (byte)(_rows % 256), (byte)(_rows / 256) };
 
@@ -226,6 +207,12 @@ namespace FlexLabs.Inky
             }
         }
 
+        private async Task BusyWait()
+        {
+            while (Pi.Gpio[Pin_Busy].Value)
+                await Task.Delay(TimeSpan.FromSeconds(.01));
+        }
+
         #endregion
 
         #region Buffer modification methods
@@ -236,8 +223,8 @@ namespace FlexLabs.Inky
             var width = input.GetLength(1);
             var result = new T[height, width];
 
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
+            for (var i = 0; i < height; i++)
+                for (var j = 0; j < width; j++)
                     result[i, j] = input[i, j];
 
             return result;
@@ -249,8 +236,8 @@ namespace FlexLabs.Inky
             var width = input.GetLength(1);
             var result = new T[height, width];
 
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
+            for (var i = 0; i < height; i++)
+                for (var j = 0; j < width; j++)
                     result[i, width - j - 1] = input[i, j];
 
             return result;
@@ -262,14 +249,14 @@ namespace FlexLabs.Inky
             var width = input.GetLength(1);
             var result = new T[height, width];
 
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
+            for (var i = 0; i < height; i++)
+                for (var j = 0; j < width; j++)
                     result[height - i - 1, j] = input[i, j];
 
             return result;
         }
 
-        private T[,] Rotate<T>(T[,] input, short angle)
+        private T[,] Rotate<T>(T[,] input, int angle)
         {
             var rotations = angle / 90;
             while (rotations > 3)
@@ -286,8 +273,8 @@ namespace FlexLabs.Inky
                 ? new T[height, width]
                 : new T[width, height];
 
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
+            for (var i = 0; i < height; i++)
+                for (var j = 0; j < width; j++)
                 {
                     switch (rotations)
                     {
@@ -310,8 +297,8 @@ namespace FlexLabs.Inky
         {
             byte bit = 0, current = 0;
             var result = new List<byte>();
-            for (int i = 0; i < input.GetLength(0); i++)
-                for (int j = 0; j < input.GetLength(1); j++)
+            for (var i = 0; i < input.GetLength(0); i++)
+                for (var j = 0; j < input.GetLength(1); j++)
                 {
                     if (match(input[i, j]))
                         current += (byte)Math.Pow(2, 7 - bit);
@@ -328,11 +315,8 @@ namespace FlexLabs.Inky
 
         #endregion
 
-        /// <summary>
-        /// Setup the GPIO pins and SPI interface
-        /// </summary>
-        /// <returns></returns>
-        public async Task Setup()
+        /// <inheritdoc />
+        public async Task Init()
         {
             if (!_setup)
             {
@@ -361,44 +345,22 @@ namespace FlexLabs.Inky
             await BusyWait();
         }
 
-        /// <summary>
-        /// Wait until the screen finished rendering
-        /// </summary>
-        /// <returns></returns>
-        public async Task BusyWait()
-        {
-            while (Pi.Gpio[Pin_Busy].Value)
-                await Task.Delay(TimeSpan.FromSeconds(.01));
-        }
-
-        /// <summary>
-        /// Clear the display buffer to the specified colour
-        /// </summary>
-        /// <param name="colour">The colour to fill the display with</param>
+        /// <inheritdoc />
         public void Clear(InkyPixelColour colour = InkyPixelColour.White)
         {
-            for (int i = 0; i < _buffer.GetLength(0); i++)
-                for (int j = 0; j < _buffer.GetLength(1); j++)
+            for (var i = 0; i < _buffer.GetLength(0); i++)
+                for (var j = 0; j < _buffer.GetLength(1); j++)
                     _buffer[i, j] = colour;
         }
 
-        /// <summary>
-        /// Set the colour of a pixel in the display buffer
-        /// </summary>
-        /// <param name="x">The x coordinate of the pixel</param>
-        /// <param name="y">The y coordinate of the pixel</param>
-        /// <param name="colour">The colour to set the pixel to</param>
+        /// <inheritdoc />
         public void SetPixel(int x, int y, InkyPixelColour colour)
         {
             _buffer[y, x] = colour;
         }
 
-        /// <summary>
-        /// Show the buffer on display
-        /// </summary>
-        /// <param name="busyWait">If True, wait for display update to finish before returning.</param>
-        /// <returns></returns>
-        public Task Show(bool busyWait = true)
+        /// <inheritdoc />
+        public Task RenderBuffer()
         {
             var region = Clone(_buffer);
 
@@ -412,7 +374,7 @@ namespace FlexLabs.Inky
             var bufferA = PackBits(region, b => b != InkyPixelColour.Black);
             var bufferB = PackBits(region, b => b == InkyPixelColour.Red);
 
-            return Update(bufferA, bufferB, busyWait);
+            return Update(bufferA, bufferB, true);
         }
     }
 }
