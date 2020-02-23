@@ -1,5 +1,10 @@
 # Inky
 
+[![Build status](https://github.com/artiomchi/FlexLabs.Inky/workflows/Build/badge.svg)](https://github.com/artiomchi/FlexLabs.Inky/actions?query=workflow%3ABuild)
+[![Build status](https://ci.appveyor.com/api/projects/status/sc4tt6wnn0kfn59h?svg=true)](https://ci.appveyor.com/project/artiomchi/flexlabs-inky)
+[![FlexLabs.Inky on NuGet](https://img.shields.io/nuget/v/FlexLabs.Inky.svg)](https://www.nuget.org/packages/FlexLabs.Inky)  
+[![FlexLabs.Inky.Text on NuGet](https://img.shields.io/nuget/v/FlexLabs.Inky.Text.svg)](https://www.nuget.org/packages/FlexLabs.Inky.Text)  
+
 .NET Standard library for the [Inky pHAT](https://shop.pimoroni.com/products/inky-phat) and [Inky wHAT](https://shop.pimoroni.com/products/inky-what) e-paper displays.
 
 ## Inky pHAT
