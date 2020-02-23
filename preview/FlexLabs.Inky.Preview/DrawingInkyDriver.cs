@@ -18,6 +18,10 @@ namespace FlexLabs.Inky.Preview
             _displayColour = colour;
             _bitmap = bitmap;
             _buffer = new byte[height, width, 4];
+            for (var h = 0; h < Height; h++)
+                for (var w = 0; w < Width; w++)
+                    for (var c = 0; c < 4; c++)
+                        _buffer[h, w, c] = 255;
         }
 
         public InkyPixelColour BorderColour { get; set; }
@@ -38,15 +42,6 @@ namespace FlexLabs.Inky.Preview
                 (InkyPixelColour.Red, _) => new byte[] { 139, 0, 0, 255 },
                 (_, _) => throw new InvalidOperationException(),
             };
-        }
-
-        public Task Init()
-        {
-            for (var h = 0; h < Height; h++)
-                for (var w = 0; w < Width; w++)
-                    for (var c = 0; c < 4; c++)
-                        _buffer[h, w, c] = 255;
-            return Task.CompletedTask;
         }
 
         public void Clear(InkyPixelColour colour = InkyPixelColour.White)

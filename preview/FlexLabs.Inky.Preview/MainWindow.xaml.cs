@@ -19,7 +19,6 @@ namespace FlexLabs.Inky.Preview
             InitializeComponent();
             var bitmap = new WriteableBitmap(212, 104, 96, 96, PixelFormats.Bgra32, null);
             _inky = new DrawingInkyDriver(212, 104, InkyDisplayColour.Yellow, bitmap);
-            _inky.Init();
 
             imgInky.Source = bitmap;
 

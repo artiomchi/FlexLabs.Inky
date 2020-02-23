@@ -44,12 +44,6 @@ namespace FlexLabs.Inky
         void Clear(InkyPixelColour colour = InkyPixelColour.White);
 
         /// <summary>
-        /// Init the GPIO pins and SPI interface
-        /// </summary>
-        /// <returns></returns>
-        Task Init();
-
-        /// <summary>
         /// Set the colour of a pixel in the display buffer
         /// </summary>
         /// <param name="x">The x coordinate of the pixel</param>

@@ -148,6 +148,35 @@ namespace FlexLabs.Inky
             Pi.Spi.Channel0.Write(data);
         }
 
+        private async Task Init()
+        {
+            if (!_setup)
+            {
+                Pi.Init<BootstrapWiringPi>();
+
+                Pi.Gpio[Pin_DC].PinMode = GpioPinDriveMode.Output;
+                Pi.Gpio[Pin_DC].Value = false;
+
+                Pi.Gpio[Pin_Reset].PinMode = GpioPinDriveMode.Output;
+                Pi.Gpio[Pin_Reset].Value = true;
+
+                Pi.Gpio[Pin_Busy].PinMode = GpioPinDriveMode.Input;
+                Pi.Gpio[Pin_Busy].InputPullMode = GpioPinResistorPullMode.Off;
+
+                Pi.Spi.Channel0Frequency = 488000;
+
+                _setup = true;
+            }
+
+            Pi.Gpio[Pin_Reset].Value = false;
+            await Task.Delay(TimeSpan.FromSeconds(.1)).ConfigureAwait(false);
+            Pi.Gpio[Pin_Reset].Value = true;
+            await Task.Delay(TimeSpan.FromSeconds(.1)).ConfigureAwait(false);
+
+            SendCommand(0x12); // Soft Reset
+            await BusyWait().ConfigureAwait(false);
+        }
+
         private async Task Update(byte[] blackPixels, byte[] colourPixels, bool busyWait = true)
         {
             await Init().ConfigureAwait(false);
@@ -316,36 +345,6 @@ namespace FlexLabs.Inky
         }
 
         #endregion
-
-        /// <inheritdoc />
-        public async Task Init()
-        {
-            if (!_setup)
-            {
-                Pi.Init<BootstrapWiringPi>();
-
-                Pi.Gpio[Pin_DC].PinMode = GpioPinDriveMode.Output;
-                Pi.Gpio[Pin_DC].Value = false;
-
-                Pi.Gpio[Pin_Reset].PinMode = GpioPinDriveMode.Output;
-                Pi.Gpio[Pin_Reset].Value = true;
-
-                Pi.Gpio[Pin_Busy].PinMode = GpioPinDriveMode.Input;
-                Pi.Gpio[Pin_Busy].InputPullMode = GpioPinResistorPullMode.Off;
-
-                Pi.Spi.Channel0Frequency = 488000;
-
-                _setup = true;
-            }
-
-            Pi.Gpio[Pin_Reset].Value = false;
-            await Task.Delay(TimeSpan.FromSeconds(.1)).ConfigureAwait(false);
-            Pi.Gpio[Pin_Reset].Value = true;
-            await Task.Delay(TimeSpan.FromSeconds(.1)).ConfigureAwait(false);
-
-            SendCommand(0x12); // Soft Reset
-            await BusyWait().ConfigureAwait(false);
-        }
 
         /// <inheritdoc />
         public void Clear(InkyPixelColour colour = InkyPixelColour.White)
