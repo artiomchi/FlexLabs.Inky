@@ -38,8 +38,8 @@ namespace FlexLabs.Inky.Preview
                 (InkyPixelColour.Black, _) => new byte[] { 0, 0, 0, 255 },
                 (InkyPixelColour.White, _) => new byte[] { 255, 255, 255, 255 },
                 (InkyPixelColour.Red, InkyDisplayColour.Black) => new byte[] { 0, 0, 0, 255 },
-                (InkyPixelColour.Red, InkyDisplayColour.Yellow) => new byte[] { 255, 215, 0, 255 },
-                (InkyPixelColour.Red, _) => new byte[] { 139, 0, 0, 255 },
+                (InkyPixelColour.Red, InkyDisplayColour.Yellow) => new byte[] { 0, 215, 255, 255 },
+                (InkyPixelColour.Red, _) => new byte[] { 0, 0, 139, 255 },
                 (_, _) => throw new InvalidOperationException(),
             };
         }
