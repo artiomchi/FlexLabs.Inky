@@ -16,22 +16,28 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexLabs.Inky", "src\FlexLa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexLabs.Inky.Text", "src\FlexLabs.Inky.Text\FlexLabs.Inky.Text.csproj", "{B697F7AB-9661-4DDF-A586-F1BC66DB2022}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlexLabs.Inky.Preview", "preview\FlexLabs.Inky.Preview\FlexLabs.Inky.Preview.csproj", "{393EC933-45A4-45C5-9D72-F5E09A486C35}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexLabs.Inky.Preview", "preview\FlexLabs.Inky.Preview\FlexLabs.Inky.Preview.csproj", "{393EC933-45A4-45C5-9D72-F5E09A486C35}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		CI|Any CPU = CI|Any CPU
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7C77BE5F-0074-44F0-82EC-C299DB72C9F1}.CI|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C77BE5F-0074-44F0-82EC-C299DB72C9F1}.CI|Any CPU.Build.0 = Debug|Any CPU
 		{7C77BE5F-0074-44F0-82EC-C299DB72C9F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7C77BE5F-0074-44F0-82EC-C299DB72C9F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C77BE5F-0074-44F0-82EC-C299DB72C9F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C77BE5F-0074-44F0-82EC-C299DB72C9F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B697F7AB-9661-4DDF-A586-F1BC66DB2022}.CI|Any CPU.ActiveCfg = Debug|Any CPU
+		{B697F7AB-9661-4DDF-A586-F1BC66DB2022}.CI|Any CPU.Build.0 = Debug|Any CPU
 		{B697F7AB-9661-4DDF-A586-F1BC66DB2022}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B697F7AB-9661-4DDF-A586-F1BC66DB2022}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B697F7AB-9661-4DDF-A586-F1BC66DB2022}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B697F7AB-9661-4DDF-A586-F1BC66DB2022}.Release|Any CPU.Build.0 = Release|Any CPU
+		{393EC933-45A4-45C5-9D72-F5E09A486C35}.CI|Any CPU.ActiveCfg = Debug|Any CPU
 		{393EC933-45A4-45C5-9D72-F5E09A486C35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{393EC933-45A4-45C5-9D72-F5E09A486C35}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{393EC933-45A4-45C5-9D72-F5E09A486C35}.Release|Any CPU.ActiveCfg = Release|Any CPU
